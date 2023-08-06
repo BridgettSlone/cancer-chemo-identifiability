@@ -32,8 +32,20 @@ C005 = mean(Cell005);
 C010 = mean(Cell010);
 C040 = mean(Cell040);
 C100 = mean(Cell100);
-%%
-sigmasq = (mean([(Cerr005/C005); (Cerr010/C010); (Cerr040/C040); (Cerr100/C100)]))^2;
+%% Variance
+% Previous sigmasq formula
+% changed because this calculates mean error squared, not sigma squared
+%sigmasq = (mean([(Cerr005/C005); (Cerr010/C010); (Cerr040/C040); (Cerr100/C100)]))^2;
+
+% New sigmasq formula, added by Bridgett
+error = [Cerr005/C005; Cerr010/C010; Cerr040/C040; Cerr100/C100]; % dividing by mean of cell data "normalizes" each data set
+total_data = length(error);
+numerator = [];
+for i=1:total_data
+    numerator = [numerator; error(i)^2];
+end
+sigmasq = sum(numerator)/total_data;
+
 %%
 % Dose response curve, (end points from above data)
 S005 = Cell005(end)/Cell(end);
