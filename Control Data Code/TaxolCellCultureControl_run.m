@@ -13,7 +13,19 @@ TimeTT = [0      3      6      9     12     15    ]';        % days
 CellTT = [0.009  0.050  0.120  0.189  0.230  0.260]'*1091;   % thousands of cells
 CerrTT = [0.006  0.012  0.010  0.011  0.011  0.011]'*1091;   % thousands of cells
 
-sigmasq = (mean(CerrTT))^2;
+% Previous sigmasq formula
+% changed because this calculates mean error squared, not sigma squared
+%sigmasq = (mean(CerrTT))^2;
+
+% New sigmasq formula, added by Bridgett
+error = CerrTT;
+total_data = length(error);
+numerator = [];
+for i=1:total_data
+    numerator = [numerator; error(i)^2];
+end
+sigmasq = sum(numerator)/total_data;
+
 threshold = sigmasq*chi2inv(0.95,3)
 
 figure(1)  
