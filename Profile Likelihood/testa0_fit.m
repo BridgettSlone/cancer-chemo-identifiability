@@ -1,5 +1,7 @@
 clear all
 
+% a0 = aP in paper
+
 % name    a0        ka        r0        d0        kd    
 % parsic = [8.3170    8.0959    0.0582    1.3307  119.1363];
 
@@ -37,12 +39,24 @@ C010 = mean(Cell010);
 C040 = mean(Cell040);
 C100 = mean(Cell100);
 
-sigmasq = (mean([(Cerr005/C005); (Cerr010/C010); (Cerr040/C040); (Cerr100/C100)]))^2;
-threshold = sigmasq*chi2inv(0.95,5);
+% Previous sigmasq formula
+% changed because this calculates mean error squared, not sigma squared
+%sigmasq = (mean([(Cerr005/C005); (Cerr010/C010); (Cerr040/C040); (Cerr100/C100)]))^2;
+
+% New sigmasq formula, added by Bridgett
+error = [Cerr005/C005; Cerr010/C010; Cerr040/C040; Cerr100/C100]; % dividing by mean of cell data "normalizes" each data set
+total_data = length(error);
+numerator = [];
+for i=1:total_data
+    numerator = [numerator; error(i)^2];
+end
+sigmasq = sum(numerator)/total_data;
+
+threshold = sigmasq*chi2inv(0.95,5); % RSS = sigmasq*chi2
 
 % Reshape data
 tdata = [Time;Time;Time;Time];
-cdata = [Cell005/C005;Cell010/C010;Cell040/C040;Cell100/C100];
+cdata = [Cell005/C005;Cell010/C010;Cell040/C040;Cell100/C100]; % dividing by mean of cell data "normalizes" each data set
 
 data = [tdata  cdata];
 
@@ -120,10 +134,14 @@ i=1;
 
 
 
+% Figure 1 = alpha_0 vs residual error profile %
+
 figure(1)
 hold on
 set(gca,'LineWidth',1.25,'FontSize',24,'FontWeight','normal','FontName','Helvetica')
 plot(alpha0(In)/alpha0(1),resnorm(In),'LineWidth',2)
+% below is the 95% confidence line %
+% aP = 
 plot(alpha0(In)/alpha0(1),(threshold+resnorm(1))*ones(length(alpha0),1),'LineWidth',2)
 plot(alpha0(1)/alpha0(1),resnorm(1),'^','MarkerSize',12,'LineWidth',2)
 xlabel('Fold change in \alpha_0, maximum rate of G2/M cell arrest')
